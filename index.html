@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gringos Paddle App</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gp-blue:#38429b;--gp-blue-light:#4a56b8;--gp-blue-dark:#252d6e;--gp-blue-darker:#161c4a;
+  --gp-gold:#e8eaf6;--gp-gold-light:#e8eaf6;--gp-gold-dark:#9a7a28;
+  --gp-bg:#161c4a;--gp-surface:#1e2560;--gp-surface2:#2e3880;
+  --gp-border:#38429b;--gp-text:#e8eaf6;--gp-text-muted:#8890cc;
+  --gp-green:#38429b; /* Ajustado el predominante */
+}
+body{font-family:'Barlow',sans-serif;background:radial-gradient(circle at top, #1e2560 0%, #0e1035 100%);color:var(--gp-text);min-height:100vh;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Barlow Condensed',sans-serif}
+
+.app-header{background:var(--gp-surface);border-bottom:2px solid var(--gp-gold);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:90px;position:sticky;top:0;z-index:100}
+.logo-area{display:flex;align-items:center;gap:16px}
+.logo-badge{display:flex;align-items:center;justify-content:center}
+.logo-badge img {height:140px; width:auto; object-fit:contain}
+
+.main-nav{display:flex;gap:4px}
+.nav-btn{background:none;border:none;color:var(--gp-text-muted);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:'Barlow',sans-serif;font-size:14px;font-weight:500;display:flex;align-items:center;gap:6px;transition:all 0.2s}
+.nav-btn:hover{background:var(--gp-surface2);color:var(--gp-text)}
+.nav-btn.active{background:var(--gp-blue);color:#fff}
+.nav-btn.admin-btn{border:1px solid var(--gp-gold-dark);color:var(--gp-gold)}
+.nav-btn.admin-btn:hover,.nav-btn.admin-btn.active{background:var(--gp-gold);color:var(--gp-blue-darker)}
+
+.main{padding:1.5rem;max-width:1200px;margin:0 auto}
+.page{display:none}.page.active{display:block}
+
+.section-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:32px;color:var(--gp-gold);letter-spacing:1px;margin-bottom:4px}
+.section-sub{color:var(--gp-text-muted);font-size:14px;margin-bottom:1.5rem}
+
+.cat-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.5rem}
+.cat-tab{background:var(--gp-surface2);border:1px solid var(--gp-border);color:var(--gp-text-muted);padding:6px 16px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px}
+.cat-tab:hover{border-color:var(--gp-blue-light);color:var(--gp-text)}
+.cat-tab.active{background:var(--gp-blue);border-color:var(--gp-blue);color:#fff}
+
+.ranking-card{background:var(--gp-surface);border:1px solid var(--gp-border);border-radius:12px;overflow:hidden}
+.ranking-header{display:grid;grid-template-columns:60px 1fr 100px 110px 100px;gap:8px;padding:12px 16px;background:var(--gp-surface2);border-bottom:1px solid var(--gp-border);font-size:11px;font-weight:600;color:var(--gp-text-muted);text-transform:uppercase;letter-spacing:1px}
+.ranking-row{display:grid;grid-template-columns:60px 1fr 100px 110px 100px;gap:8px;padding:12px 16px;border-bottom:1px solid var(--gp-border);align-items:center;transition:background 0.15s}
+.ranking-row:last-child{border-bottom:none}
+.ranking-row:hover{background:var(--gp-surface2)}
+.rank-pos{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;color:var(--gp-text-muted);text-align:center}
+.rank-pos.gold{color:#FFD700}.rank-pos.silver{color:#C0C0C0}.rank-pos.bronze{color:#CD7F32}
+.player-info{display:flex;align-items:center;gap:12px}
+.player-avatar{width:40px;height:40px;border-radius:50%;background:var(--gp-blue-dark);border:2px solid var(--gp-border);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--gp-gold);overflow:hidden;flex-shrink:0}
+.player-avatar img{width:100%;height:100%;object-fit:cover}
+.player-name{font-weight:600;font-size:15px}
+.player-cats{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.cat-badge{font-size:10px;padding:2px 8px;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:0.5px;white-space:nowrap}
+.cat-octava{background:#38429b;color:#86969c}
+.cat-septima{background:#38429b;color:#86969c}
+.cat-sexta{background:#38429b;color:#86969c}
+.cat-quinta{background:#38429b;color:#86969c}
+.cat-cuarta{background:#38429b;color:#86969c}
+.cat-tercera{background:#38429b;color:#86969c}
+.cat-intermedia{background:#38429b;color:#86969c}
+
+/* Puntos interactivos como botón clickable */
+.points-clickable {cursor:pointer;background:rgba(200,168,75,0.1);padding:6px;border-radius:8px;transition:all 0.2s;text-align:center}
+.points-clickable:hover {background:rgba(200,168,75,0.25);transform:scale(1.05)}
+
+.points-col{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;color:var(--gp-gold)}
+.pts-label{font-size:10px;color:var(--gp-text-muted);font-weight:400;font-family:'Barlow',sans-serif}
+.tours-col{font-size:13px;color:var(--gp-text-muted);text-align:center}
+.trend-col{text-align:center;font-size:14px}
+.trend-up{color:#4caf50}.trend-same{color:var(--gp-text-muted)}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:1.5rem}
+.stat-card{background:var(--gp-surface);border:1px solid var(--gp-border);border-radius:10px;padding:1rem;text-align:center}
+.stat-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:var(--gp-gold)}
+.stat-lbl{font-size:12px;color:var(--gp-text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+.calendar-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.tourney-card{background:var(--gp-surface);border:1px solid var(--gp-border);border-radius:12px;overflow:hidden;transition:border-color 0.2s}
+.tourney-card:hover{border-color:var(--gp-blue-light)}
+.tourney-header{padding:16px;background:var(--gp-surface2);border-bottom:1px solid var(--gp-border);display:flex;justify-content:space-between;align-items:flex-start}
+.tourney-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;color:var(--gp-text)}
+.tourney-date{font-size:12px;color:var(--gp-gold);margin-top:2px;font-weight:500}
+.tourney-status{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px}
+.status-upcoming{background:#1a2d1a;color:#5ab55a;border:1px solid #2d5a2d}
+.status-ongoing{background:#2d2d0a;color:#c8a84b;border:1px solid #5a5a1a}
+.status-finished{background:#1a1a2d;color:#8a8ab5;border:1px solid #2d2d5a}
+.tourney-body{padding:16px}
+.tourney-detail{display:flex;align-items:center;gap:8px;color:var(--gp-text-muted);font-size:13px;margin-bottom:8px}
+.tourney-detail i{color:var(--gp-blue-light);font-size:16px}
+.tourney-cats{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+
+.admin-grid{display:grid;grid-template-columns:240px 1fr;gap:1.5rem;min-height:500px}
+.admin-sidebar{background:var(--gp-surface);border:1px solid var(--gp-border);border-radius:12px;padding:1rem;height:fit-content}
+.admin-menu-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;color:var(--gp-text-muted);font-size:14px;font-weight:500;transition:all 0.2s;margin-bottom:4px}
+.admin-menu-item:hover{background:var(--gp-surface2);color:var(--gp-text)}
+.admin-menu-item.active{background:var(--gp-blue-dark);color:var(--gp-gold);border-left:3px solid var(--gp-gold)}
+.admin-content{background:var(--gp-surface);border:1px solid var(--gp-border);border-radius:12px;padding:1.5rem}
+.admin-panel{display:none}.admin-panel.active{display:block}
+
+.form-group{margin-bottom:1rem}
+.form-label{font-size:13px;font-weight:600;color:var(--gp-text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block}
+.form-input{width:100%;background:var(--gp-surface2);border:1px solid var(--gp-border);border-radius:8px;padding:10px 12px;color:var(--gp-text);font-family:'Barlow',sans-serif;font-size:14px;outline:none;}
+.cats-check{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;max-height:150px;overflow-y:auto;background:var(--gp-surface2);padding:8px;border-radius:6px;border:1px solid var(--gp-border)}
+.cat-check{display:flex;align-items:center;gap:6px;cursor:pointer}
+.btn-primary{background:var(--gp-blue);border:none;color:#fff;padding:10px 20px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px;font-weight:600}
+.btn-primary:hover{background:var(--gp-blue-light)}
+.btn-gold{background:var(--gp-gold-dark);border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.btn-danger{background:#3d1a1a;border:1px solid #6d2a2a;color:#f08080;padding:6px 12px;border-radius:6px;cursor:pointer}
+.admin-list{list-style:none}
+.admin-list-item{display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--gp-surface2);border:1px solid var(--gp-border);border-radius:8px;margin-bottom:8px}
+.admin-list-item-info{display:flex;align-items:center;gap:12px}
+.admin-list-actions{display:flex;gap:6px}
+
+.photo-upload-area{border:2px dashed var(--gp-border);border-radius:8px;padding:20px;text-align:center;cursor:pointer}
+.photo-preview{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--gp-gold);margin:0 auto 8px;display:block}
+.result-entry{background:var(--gp-surface2);border:1px solid var(--gp-border);border-radius:10px;padding:14px;margin-bottom:10px}
+.stage-select{background:var(--gp-bg);border:1px solid var(--gp-border);border-radius:6px;padding:6px 10px;color:var(--gp-gold);width:100%;font-family:'Barlow'}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:var(--gp-surface);border:1px solid var(--gp-border);border-radius:14px;padding:1.5rem;max-width:440px;width:100%;max-height:85vh;overflow-y:auto}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:var(--gp-gold);margin-bottom:1rem}
+.modal-close{float:right;background:none;border:none;color:var(--gp-text-muted);cursor:pointer;font-size:20px}
+
+.history-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gp-border)}
+.history-item:last-child{border-bottom:none}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--gp-blue-light);color:#fff;padding:12px 20px;border-radius:10px;font-weight:600;z-index:300;transform:translateY(100px);opacity:0;transition:all 0.3s;display:flex;align-items:center;gap:8px}
+.toast.show{transform:translateY(0);opacity:1}
+
+@media(max-width:768px){
+.main-nav .nav-btn span{display:none}
+.nav-btn{padding:8px 10px}
+.ranking-header,.ranking-row{grid-template-columns:40px 1fr 80px}
+.ranking-header .tours-col,.ranking-row .tours-col,.ranking-header .trend-col,.ranking-row .trend-col{display:none}
+.admin-grid{grid-template-columns:1fr}
+.admin-sidebar{display:flex;flex-wrap:wrap;gap:4px;padding:8px}
+.admin-menu-item{flex:1;min-width:100px;justify-content:center;margin-bottom:0}
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="logo-area">
+    <div class="logo-badge"><img src="img/LOGO.PNG" alt="Gringos"></div>
+  </div>
+  <nav class="main-nav">
+    <button class="nav-btn active" onclick="showPage('ranking')" id="nav-ranking"><i class="ti ti-trophy"></i><span>Ranking</span></button>
+    <button class="nav-btn" onclick="showPage('calendar')" id="nav-calendar"><i class="ti ti-calendar-event"></i><span>Torneos</span></button>
+    <button class="nav-btn admin-btn" onclick="showPage('admin')" id="nav-admin"><i class="ti ti-shield-lock"></i><span>Admin</span></button>
+  </nav>
+</header>
+
+<main class="main">
+<div class="page active" id="page-ranking">
+  <div class="section-title"><i class="ti ti-trophy"></i> Ranking Anual</div>
+  <div class="section-sub">Complejo Gringos Paddle | Temporada 2026 </div>
+  <div class="stats-grid" id="stats-grid"></div>
+  <div class="cat-tabs" id="cat-tabs"></div>
+  <div class="ranking-card">
+    <div class="ranking-header">
+      <div style="text-align:center">Pos.</div>
+      <div>Jugador</div>
+      <div style="text-align:center">Puntos</div>
+      <div class="tours-col">Torneos</div>
+      <div class="trend-col">Tend.</div>
+    </div>
+    <div id="ranking-list"></div>
+  </div>
+</div>
+
+<div class="page" id="page-calendar">
+  <div class="section-title"><i class="ti ti-calendar-event"></i> Calendario de Torneos</div>
+  <div class="calendar-grid" id="calendar-grid"></div>
+</div>
+
+<div class="page" id="page-admin">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:10px;">
+    <div class="section-title" style="margin-bottom:0;"><i class="ti ti-shield-lock"></i> Panel Administrador</div>
+    <button class="btn-danger" onclick="logoutAdmin()" style="padding:8px 16px; display:flex; align-items:center; gap:6px;"><i class="ti ti-logout"></i> Cerrar Sesión</button>
+  </div>
+  
+  <div class="admin-grid">
+    <div class="admin-sidebar">
+      <div class="admin-menu-item active" onclick="showAdminPanel('players')" id="amenu-players"><i class="ti ti-users"></i> Jugadores</div>
+      <div class="admin-menu-item" onclick="showAdminPanel('tournaments')" id="amenu-tournaments"><i class="ti ti-calendar-plus"></i> Torneos</div>
+      <div class="admin-menu-item" onclick="showAdminPanel('results')" id="amenu-results"><i class="ti ti-chart-bar"></i> Resultados</div>
+    </div>
+    <div class="admin-content">
+      <div class="admin-panel active" id="panel-players">
+        <button class="btn-primary" onclick="openAddPlayer()" style="margin-bottom:1.5rem"><i class="ti ti-user-plus"></i> Agregar Jugador</button>
+        <ul class="admin-list" id="players-list"></ul>
+      </div>
+      <div class="admin-panel" id="panel-tournaments">
+        <button class="btn-primary" onclick="openAddTournament()" style="margin-bottom:1.5rem"><i class="ti ti-calendar-plus"></i> Nuevo Torneo</button>
+        <ul class="admin-list" id="tournaments-list"></ul>
+      </div>
+      <div class="admin-panel" id="panel-results">
+        <div class="admin-form">
+          <div class="form-group">
+            <label class="form-label">Torneo</label>
+            <select class="form-input" id="result-tournament" onchange="loadResultPlayers()"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">División</label>
+            <select class="form-input" id="result-category" onchange="loadResultPlayers()"></select>
+          </div>
+          <div id="result-players-area"></div>
+          <button class="btn-gold" onclick="saveResults()" style="margin-top:1rem"><i class="ti ti-device-floppy"></i> Guardar Resultados</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</main>
+
+<div class="modal-overlay" id="modal-points-breakdown">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-points-breakdown')"><i class="ti ti-x"></i></button>
+    <div class="modal-title" id="points-modal-title">Desglose de Puntos</div>
+    <div id="points-modal-content" style="display:grid;gap:10px;margin-top:10px"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-login">
+  <div class="modal" style="max-width:360px;">
+    <button class="modal-close" onclick="closeModal('modal-login')"><i class="ti ti-x"></i></button>
+    <div class="modal-title" style="text-align:center;"><i class="ti ti-lock" style="font-size:28px; color:var(--gp-gold); display:block; margin-bottom:8px;"></i> Acceso Restringido</div>
+    <div style="font-size:13px; color:var(--gp-text-muted); text-align:center; margin-bottom:1.5rem;">Ingresá tus credenciales de Administrador</div>
+    <div class="form-group">
+      <label class="form-label">Correo Electrónico</label>
+      <input type="email" class="form-input" id="login-email" placeholder="admin@club.com">
+    </div>
+    <div class="form-group" style="margin-bottom:1.5rem;">
+      <label class="form-label">Contraseña</label>
+      <input type="password" class="form-input" id="login-password" placeholder="••••••••">
+    </div>
+    <button class="btn-primary" onclick="loginAdmin()" style="width:100%; justify-content:center; padding:12px;"><i class="ti ti-login"></i> Iniciar Sesión</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-player">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-player')"><i class="ti ti-x"></i></button>
+    <div class="modal-title" id="modal-player-title">Agregar Jugador</div>
+    <div class="form-group">
+      <label class="form-label">Foto</label>
+      <div class="photo-upload-area" onclick="document.getElementById('photo-input').click()">
+        <img src="" alt="" class="photo-preview" id="photo-preview" style="display:none">
+        <i class="ti ti-camera" style="font-size:28px;color:var(--gp-text-muted);display:block" id="photo-icon"></i>
+        <div style="font-size:13px;color:var(--gp-text-muted)" id="photo-text">Subir foto</div>
+        <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="previewPhoto(this)">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nombre completo</label>
+      <input type="text" class="form-input" id="player-name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Divisiones</label>
+      <div class="cats-check" id="player-cats-check"></div>
+    </div>
+    <button class="btn-primary" onclick="savePlayer()" style="width:100%;justify-content:center"><i class="ti ti-check"></i> Guardar</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-tournament">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-tournament')"><i class="ti ti-x"></i></button>
+    <div class="modal-title" id="modal-tournament-title">Nuevo Torneo</div>
+    <div class="form-group">
+      <label class="form-label">Nombre del torneo</label>
+      <input type="text" class="form-input" id="t-name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fecha de inicio</label>
+      <input type="date" class="form-input" id="t-date-start">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fecha de fin</label>
+      <input type="date" class="form-input" id="t-date-end">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Estado</label>
+      <select class="form-input" id="t-status">
+        <option value="upcoming">Próximo</option>
+        <option value="ongoing">En curso</option>
+        <option value="finished">Finalizado</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Divisiones del torneo</label>
+      <div class="cats-check" id="t-cats-check" onchange="updateTournamentPlayersList()"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Jugadores habilitados que participan</label>
+      <div class="cats-check" id="t-players-check" style="max-height:200px">
+        <div style="color:var(--gp-text-muted);font-size:12px;padding:5px">Selecciona divisiones primero</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Sede</label>
+      <input type="text" class="form-input" id="t-location" placeholder="Gringos Paddle">
+    </div>
+    <button class="btn-primary" onclick="saveTournament()" style="width:100%;justify-content:center"><i class="ti ti-check"></i> Guardar Torneo</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="ti ti-check"></i> <span id="toast-msg"></span></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+  import { getFirestore, collection, onSnapshot, doc, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBJhkxHLYFv7FEFhEbyu9mHLaTs-jqC-d0",
+    authDomain: "app-ranking-c980e.firebaseapp.com",
+    projectId: "app-ranking-c980e",
+    storageBucket: "app-ranking-c980e.firebasestorage.app",
+    messagingSenderId: "911263760548",
+    appId: "1:911263760548:web:acdfad05ceb44c5ceae631",
+    measurementId: "G-5BS6NECRN0"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const STAGES=[
+    {id:'winner',name:'Campeón',pts:100},
+    {id:'finalist',name:'Finalista',pts:75},
+    {id:'semi',name:'Semifinal',pts:50},
+    {id:'quarter',name:'Cuartos de final',pts:30},
+    {id:'round16',name:'Octavos de final',pts:15},
+    {id:'round32',name:'Zona',pts:0},
+  ];
+
+  const CATEGORIES=[
+    {id:'intermedia',name:'Intermedia'},
+    {id:'tercera',name:'Tercera'},
+    {id:'cuarta',name:'Cuarta'},
+    {id:'quinta',name:'Quinta'},
+    {id:'sexta',name:'Sexta'},
+    {id:'septima',name:'Séptima'},
+    {id:'octava',name:'Octava'}
+  ];
+
+  let players=[];
+  let tournaments=[];
+  let currentCat='intermedia';
+  let editingPlayerId=null;
+  let editingTournamentId=null;
+  let playerPhotoData='';
+  let isAdminLoggedIn = false;
+
+  function totalPoints(p){return Object.values(p.points||{}).reduce((a,b)=>a+b,0)}
+  function getInitials(name){return name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase()}
+
+  // ESCUCHAR ESTADO DE SESIÓN
+  onAuthStateChanged(auth, (user) => {
+    isAdminLoggedIn = !!user;
+    if (!isAdminLoggedIn && document.getElementById('page-admin').classList.contains('active')) {
+      executePageChange('ranking');
+    }
+  });
+
+  // ESCUCHAR BASES DE DATOS EN TIEMPO REAL
+  onSnapshot(collection(db, "players"), (snapshot) => {
+    players = [];
+    snapshot.forEach((doc) => { players.push({ id: doc.id, ...doc.data() }); });
+    if(document.getElementById('page-ranking').classList.contains('active')) renderRanking();
+    if(document.getElementById('page-admin').classList.contains('active')) {
+      renderPlayersList();
+      loadResultPlayers();
+    }
+  });
+
+  onSnapshot(collection(db, "tournaments"), (snapshot) => {
+    tournaments = [];
+    snapshot.forEach((doc) => { tournaments.push({ id: doc.id, ...doc.data() }); });
+    if(document.getElementById('page-calendar').classList.contains('active')) renderCalendar();
+    if(document.getElementById('page-admin').classList.contains('active')) {
+      renderTournamentsList();
+      renderResultsPanel();
+    }
+  });
+
+  window.showPage = function(p) {
+    if(p === 'admin' && !isAdminLoggedIn) {
+      document.getElementById('login-email').value = '';
+      document.getElementById('login-password').value = '';
+      document.getElementById('modal-login').classList.add('open');
+      return;
+    }
+    executePageChange(p);
+  }
+
+  function executePageChange(p) {
+    document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
+    document.getElementById('page-'+p).classList.add('active');
+    document.getElementById('nav-'+p).classList.add('active');
+    if(p==='ranking')renderRanking();
+    if(p==='calendar')renderCalendar();
+    if(p==='admin')renderAdmin();
+  }
+
+  window.loginAdmin = function() {
+    const email = document.getElementById('login-email').value;
+    const pass = document.getElementById('login-password').value;
+    if(!email || !pass) { alert('Completá ambos campos'); return; }
+    
+    signInWithEmailAndPassword(auth, email, pass).then(() => {
+      closeModal('modal-login');
+      showToast('Acceso concedido ✓');
+      executePageChange('admin');
+    }).catch(err => {
+      alert('Credenciales incorrectas');
+    });
+  }
+
+  window.logoutAdmin = function() {
+    if(confirm('¿Cerrar sesión?')) {
+      signOut(auth).then(() => showToast('Sesión cerrada'));
+    }
+  }
+
+  window.showAdminPanel = function(p){
+    document.querySelectorAll('.admin-panel').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.admin-menu-item').forEach(x=>x.classList.remove('active'));
+    document.getElementById('panel-'+p).classList.add('active');
+    document.getElementById('amenu-'+p).classList.add('active');
+    if(p==='players')renderPlayersList();
+    if(p==='tournaments')renderTournamentsList();
+    if(p==='results')renderResultsPanel();
+  }
+
+  window.renderStats = function(){
+    document.getElementById('stats-grid').innerHTML=`
+      <div class="stat-card"><div class="stat-num">${players.length}</div><div class="stat-lbl">Jugadores</div></div>
+      <div class="stat-card"><div class="stat-num">${tournaments.length}</div><div class="stat-lbl">Torneos</div></div>
+      <div class="stat-card"><div class="stat-num">${CATEGORIES.length}</div><div class="stat-lbl">Divisiones</div></div>`;
+  }
+
+  window.renderCatTabs = function(){
+    let html='';
+    CATEGORIES.forEach(c=>{
+      html+=`<div class="cat-tab ${currentCat===c.id?'active':''}" onclick="filterCat('${c.id}')">${c.name}</div>`;
+    });
+    document.getElementById('cat-tabs').innerHTML=html;
+  }
+
+  window.filterCat = function(cat){currentCat=cat;renderCatTabs();renderRankingList()}
+
+  window.renderRankingList = function(){
+    const d=document.getElementById('ranking-list');
+    let filtered=players.filter(p=>p.cats.includes(currentCat));
+    filtered=filtered.map(p=>({...p,displayPts:(p.points[currentCat]||0)}));
+    filtered.sort((a,b)=>b.displayPts-a.displayPts);
+    
+    if(!filtered.length){
+      d.innerHTML='<div style="padding:2rem;text-align:center;color:var(--gp-text-muted)">No hay jugadores cargados en esta división</div>';
+      return;
+    }
+    
+    d.innerHTML=filtered.map((p,i)=>{
+      const pos=i+1;
+      const posClass=pos===1?'gold':pos===2?'silver':pos===3?'bronze':'';
+      const posShow=pos===1?'🥇':pos===2?'🥈':pos===3?'🥉':pos;
+      const av=p.photo?`<img src="${p.photo}">`:`<span>${getInitials(p.name)}</span>`;
+      const cats=p.cats.map(c=>`<span class="cat-badge cat-${c}">${CATEGORIES.find(x=>x.id===c).name}</span>`).join('');
+      const trend=Math.random()>0.4?'<span class="trend-up">▲</span>':'<span class="trend-same">—</span>';
+      
+      return `<div class="ranking-row">
+        <div class="rank-pos ${posClass}">${posShow}</div>
+        <div class="player-info">
+          <div class="player-avatar">${av}</div>
+          <div><div class="player-name">${p.name}</div><div class="player-cats">${cats}</div></div>
+        </div>
+        <div class="points-clickable" onclick="openPointsBreakdown('${p.id}', '${currentCat}')">
+          <div class="points-col">${p.displayPts}</div>
+          <div class="pts-label">ver detalles</div>
+        </div>
+        <div class="tours-col">${p.tournaments} torneos</div>
+        <div class="trend-col">${trend}</div>
+      </div>`;
+    }).join('');
+  }
+
+  window.renderRanking = function(){renderCatTabs();renderRankingList()}
+
+  window.openPointsBreakdown = function(playerId, categoryId) {
+    const player = players.find(p => p.id === playerId);
+    if(!player) return;
+    
+    document.getElementById('points-modal-title').innerText = `${player.name} - Historial en ${categoryId.toUpperCase()}`;
+    const contentArea = document.getElementById('points-modal-content');
+    
+    const categoryHistory = (player.history || []).filter(h => h.category === categoryId);
+    
+    if(!categoryHistory.length) {
+      contentArea.innerHTML = '<div style="color:var(--gp-text-muted);text-align:center;padding:10px">Este jugador no ha sumado puntos en esta categoría aún.</div>';
+    } else {
+      contentArea.innerHTML = categoryHistory.map(h => {
+        const tournament = tournaments.find(t => t.id === h.tournamentId);
+        const tName = tournament ? tournament.name : 'Torneo Externo/Manual';
+        return `<div class="history-item">
+          <div>
+            <div style="font-weight:600;font-size:14px;color:white">${tName}</div>
+            <div style="font-size:12px;color:var(--gp-text-muted)">Instancia: ${h.stage}</div>
+          </div>
+          <div style="font-weight:700;color:var(--gp-gold);font-family:'Barlow Condensed';font-size:16px">+${h.pts} pts</div>
+        </div>`;
+      }).join('');
+    }
+    document.getElementById('modal-points-breakdown').classList.add('open');
+  }
+
+  window.renderCalendar = function(){
+    document.getElementById('calendar-grid').innerHTML=tournaments.map(t=>{
+      const cats=t.cats.map(c=>`<span class="cat-badge cat-${c}">${CATEGORIES.find(x=>x.id===c).name}</span>`).join('');
+      const scale=STAGES.filter(s=>s.pts>0).map(s=>`<div class="points-row"><span class="stage-name">${s.name}</span><span class="stage-pts">+${s.pts} pts</span></div>`).join('');
+      return `<div class="tourney-card">
+        <div class="tourney-header">
+          <div><div class="tourney-title">${t.name}</div><div class="tourney-date">${t.dateStart} al ${t.dateEnd}</div></div>
+        </div>
+        <div class="tourney-body">
+          <div class="tourney-detail"><i class="ti ti-map-pin"></i>${t.location}</div>
+          <div class="tourney-detail"><i class="ti ti-users"></i>${t.playerIds ? t.playerIds.length : 0} Jugadores Inscriptos</div>
+          <div class="tourney-cats">${cats}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  window.renderPlayersList = function(){
+    document.getElementById('players-list').innerHTML=players.map(p=>{
+      const cats=p.cats.map(c=>`<span class="cat-badge cat-${c}">${CATEGORIES.find(x=>x.id===c).name}</span>`).join(' ');
+      return `<li class="admin-list-item">
+        <div class="admin-list-item-info"><div style="font-weight:600">${p.name}</div><div>${cats}</div></div>
+        <div class="admin-list-actions">
+          <button class="btn-gold" onclick="editPlayer('${p.id}')"><i class="ti ti-edit"></i></button>
+          <button class="btn-danger" onclick="deletePlayer('${p.id}')"><i class="ti ti-trash"></i></button>
+        </div></li>`;
+    }).join('');
+  }
+
+  window.renderTournamentsList = function(){
+    document.getElementById('tournaments-list').innerHTML=tournaments.map(t=>`<li class="admin-list-item">
+      <div class="admin-list-item-info"><div style="font-weight:600">${t.name}</div><div style="font-size:12px;color:var(--gp-text-muted)">${t.dateStart}</div></div>
+      <div class="admin-list-actions">
+        <button class="btn-gold" onclick="editTournament('${t.id}')"><i class="ti ti-edit"></i></button>
+        <button class="btn-danger" onclick="deleteTournament('${t.id}')"><i class="ti ti-trash"></i></button>
+      </div></li>`).join('');
+  }
+
+  window.openAddTournament = function(){
+    editingTournamentId=null;
+    document.getElementById('modal-tournament-title').innerText = "Nuevo Torneo";
+    document.getElementById('t-cats-check').innerHTML=CATEGORIES.map(c=>`<label class="cat-check"><input type="checkbox" value="${c.id}"><span>${c.name}</span></label>`).join('');
+    ['t-name','t-date-start','t-date-end','t-location'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('t-players-check').innerHTML = '<div style="color:var(--gp-text-muted);font-size:12px;padding:5px">Seleccioná divisiones primero</div>';
+    document.getElementById('modal-tournament').classList.add('open');
+  }
+
+  window.editTournament = function(id){
+    const t = tournaments.find(x=>x.id===id); if(!t) return;
+    editingTournamentId = id;
+    document.getElementById('modal-tournament-title').innerText = "Editar Torneo";
+    document.getElementById('t-name').value = t.name;
+    document.getElementById('t-date-start').value = t.dateStart;
+    document.getElementById('t-date-end').value = t.dateEnd;
+    document.getElementById('t-status').value = t.status;
+    document.getElementById('t-location').value = t.location;
+    
+    document.getElementById('t-cats-check').innerHTML=CATEGORIES.map(c=>`
+      <label class="cat-check">
+        <input type="checkbox" value="${c.id}" ${t.cats.includes(c.id)?'checked':''}><span>${c.name}</span>
+      </label>`).join('');
+      
+    window.updateTournamentPlayersList(t.playerIds || []);
+    document.getElementById('modal-tournament').classList.add('open');
+  }
+
+  window.updateTournamentPlayersList = function(checkedIds = []) {
+    const selectedCats = [...document.querySelectorAll('#t-cats-check input:checked')].map(x=>x.value);
+    const area = document.getElementById('t-players-check');
+    
+    if(!selectedCats.length) {
+      area.innerHTML = '<div style="color:var(--gp-text-muted);font-size:12px;padding:5px">Seleccioná divisiones primero</div>';
+      return;
+    }
+    
+    const eligiblePlayers = players.filter(p => p.cats.some(c => selectedCats.includes(c)));
+    
+    if(!eligiblePlayers.length) {
+      area.innerHTML = '<div style="color:var(--gp-text-muted);font-size:12px;padding:5px">No hay jugadores registrados en estas divisiones</div>';
+      return;
+    }
+    
+    area.innerHTML = eligiblePlayers.map(p => {
+      const isChecked = checkedIds.length ? checkedIds.includes(p.id) : true; 
+      return `<label class="cat-check" style="width:100%; padding:4px 0;">
+        <input type="checkbox" class="t-player-selector" value="${p.id}" ${isChecked?'checked':''}>
+        <span style="font-size:14px">${p.name}</span>
+      </label>`;
+    }).join('');
+  }
+
+  window.saveTournament = async function(){
+    const name=document.getElementById('t-name').value.trim();
+    const ds=document.getElementById('t-date-start').value;
+    if(!name||!ds){alert('Faltan datos requeridos');return}
+    
+    const cats=[...document.querySelectorAll('#t-cats-check input:checked')].map(x=>x.value);
+    const playerIds=[...document.querySelectorAll('.t-player-selector:checked')].map(x=>x.value);
+    
+    const data = {
+      name, dateStart:ds, dateEnd:document.getElementById('t-date-end').value||ds,
+      status:document.getElementById('t-status').value, cats, location:document.getElementById('t-location').value||'Gringos Paddle',
+      playerIds
+    };
+
+    if(editingTournamentId) {
+      await updateDoc(doc(db, "tournaments", editingTournamentId.toString()), data);
+      showToast('Torneo actualizado');
+    } else {
+      await addDoc(collection(db, "tournaments"), data);
+      showToast('Torneo guardado');
+    }
+    closeModal('modal-tournament'); 
+  }
+
+  window.renderResultsPanel = function(){
+    document.getElementById('result-tournament').innerHTML=tournaments.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+    document.getElementById('result-category').innerHTML=CATEGORIES.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+    window.loadResultPlayers();
+  }
+
+  window.loadResultPlayers = function(){
+    const tid=document.getElementById('result-tournament').value;
+    const cat=document.getElementById('result-category').value;
+    const tour=tournaments.find(t=>t.id===tid);
+    const area=document.getElementById('result-players-area');
+    
+    if(!tour || !tour.cats.includes(cat)){
+      area.innerHTML='<div style="color:var(--gp-text-muted);font-size:13px;padding:10px 0">Esta división no está incluida en este torneo.</div>';
+      return;
+    }
+    
+    const eligible = players.filter(p => tour.playerIds && tour.playerIds.includes(p.id) && p.cats.includes(cat));
+    
+    if(!eligible.length){
+      area.innerHTML='<div style="color:var(--gp-text-muted);font-size:13px;padding:10px 0">No hay jugadores asignados a esta división para este torneo.</div>';
+      return;
+    }
+    
+    area.innerHTML='<div style="font-size:13px;font-weight:600;color:var(--gp-text-muted);margin-bottom:10px">Cargar Ronda Finalizada</div>'+
+      eligible.map(p=>`<div class="result-entry">
+        <div style="font-weight:600;font-size:14px;margin-bottom:8px">${p.name}</div>
+        <select class="stage-select" id="stage-${p.id}">${STAGES.map(s=>`<option value="${s.id}">${s.name} (+${s.pts} pts)</option>`).join('')}</select>
+      </div>`).join('');
+  }
+
+  window.saveResults = async function(){
+    const tid=document.getElementById('result-tournament').value;
+    const cat=document.getElementById('result-category').value;
+    const eligible = players.filter(p=>p.cats.includes(cat));
+
+    for (let p of eligible) {
+      const sel=document.getElementById('stage-'+p.id);
+      if(sel){
+        const stage=STAGES.find(s=>s.id===sel.value);
+        if(stage && stage.pts > 0){
+          const pts = p.points || {};
+          pts[cat]=(pts[cat]||0)+stage.pts;
+          const hist = p.history || [];
+          hist.push({ tournamentId: tid, category: cat, stage: stage.name, pts: stage.pts });
+          
+          await updateDoc(doc(db, "players", p.id.toString()), {
+             points: pts,
+             tournaments: (p.tournaments || 0) + 1,
+             history: hist
+          });
+        }
+      }
+    }
+    showToast('Resultados e historiales guardados');
+  }
+
+  window.openAddPlayer = function(){
+    editingPlayerId=null; playerPhotoData='';
+    document.getElementById('modal-player-title').textContent='Agregar Jugador';
+    document.getElementById('player-name').value='';
+    document.getElementById('player-cats-check').innerHTML=CATEGORIES.map(c=>`<label class="cat-check"><input type="checkbox" value="${c.id}"><span>${c.name}</span></label>`).join('');
+    document.getElementById('modal-player').classList.add('open');
+  }
+
+  window.editPlayer = function(id){
+    const p=players.find(x=>x.id===id); if(!p) return;
+    editingPlayerId=id;
+    document.getElementById('modal-player-title').textContent='Editar Jugador';
+    document.getElementById('player-name').value=p.name;
+    document.getElementById('player-cats-check').innerHTML=CATEGORIES.map(c=>`<label class="cat-check"><input type="checkbox" value="${c.id}" ${p.cats.includes(c.id)?'checked':''}><span>${c.name}</span></label>`).join('');
+    document.getElementById('modal-player').classList.add('open');
+  }
+
+  window.savePlayer = async function(){
+    const name=document.getElementById('player-name').value.trim();
+    const cats=[...document.querySelectorAll('#player-cats-check input:checked')].map(x=>x.value);
+    if(!name || !cats.length) { alert('Completá los campos requeridos'); return; }
+    
+    if(editingPlayerId){
+      await updateDoc(doc(db, "players", editingPlayerId.toString()), { name, cats });
+      showToast('Jugador actualizado');
+    }else{
+      const pts={}; cats.forEach(c=>pts[c]=0);
+      await addDoc(collection(db, "players"), { name, cats, photo:'', points:pts, tournaments:0, history:[] });
+      showToast('Jugador guardado');
+    }
+    closeModal('modal-player'); 
+  }
+
+  window.deletePlayer = async function(id){ 
+    if(confirm('¿Eliminar jugador?')){
+      await deleteDoc(doc(db, "players", id.toString()));
+      showToast('Eliminado');
+    }
+  }
+
+  window.deleteTournament = async function(id){ 
+    if(confirm('¿Eliminar torneo?')){
+      await deleteDoc(doc(db, "tournaments", id.toString()));
+      showToast('Eliminado');
+    }
+  }
+
+  window.closeModal = function(id){document.getElementById(id).classList.remove('open')}
+  window.showToast = function(msg){ const t=document.getElementById('toast'); document.getElementById('toast-msg').textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
+  
+  window.previewPhoto = function(input){ 
+    const file=input.files[0]; if(!file)return; 
+    const reader=new FileReader(); 
+    reader.onload=e=>{
+      playerPhotoData=e.target.result;
+      document.getElementById('photo-preview').src=e.target.result;
+      document.getElementById('photo-preview').style.display='block';
+      document.getElementById('photo-icon').style.display='none';
+    }; 
+    reader.readAsDataURL(file); 
+  }
+
+  window.renderAdmin = function(){renderPlayersList();renderTournamentsList();}
+
+  document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open')})});
+
+  renderRanking();
+</script>
+</body>
+</html>
