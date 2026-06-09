@@ -522,9 +522,13 @@ h1,h2,h3,h4{font-family:'Barlow Condensed',sans-serif}
   }
 
   window.renderCalendar = function(){
-    document.getElementById('calendar-grid').innerHTML=tournaments.map(t=>{
-      const cats=t.cats.map(c=>`<span class="cat-badge cat-${c}">${CATEGORIES.find(x=>x.id===c).name}</span>`).join('');
-      const scale=STAGES.filter(s=>s.pts>0).map(s=>`<div class="points-row"><span class="stage-name">${s.name}</span><span class="stage-pts">+${s.pts} pts</span></div>`).join('');
+    const container = document.getElementById('calendar-grid');
+    
+    const sortedTournaments = [...tournaments].sort((a, b) => new Date(a.dateStart) - new Date(b.dateStart));
+    
+    container.innerHTML = sortedTournaments.map(t => {
+      const cats = t.cats.map(c => `<span class="cat-badge cat-${c}">${CATEGORIES.find(x => x.id === c).name}</span>`).join('');
+      
       return `<div class="tourney-card">
         <div class="tourney-header">
           <div><div class="tourney-title">${t.name}</div><div class="tourney-date">${t.dateStart} al ${t.dateEnd}</div></div>
